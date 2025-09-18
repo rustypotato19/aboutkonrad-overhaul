@@ -50,11 +50,11 @@ export default function Header() {
         className="text-white font-semibold text-2xl mx-12 hover:cursor-pointer hover:text-neutral-300 transition-all duration-200 active:text-neutral-400"
       >
         {/* Always display current locale first */}
-        <option value={currentLocale}>{currentLocale}</option>
+        <option value={currentLocale} className="bg-neutral-700">{currentLocale}</option>
 
         {/* Render all other locales */}
         {otherLocales.map((loc) => (
-          <option key={loc} value={loc}>
+          <option key={loc} value={loc} className="bg-neutral-700">
             {loc}
           </option>
         ))}
