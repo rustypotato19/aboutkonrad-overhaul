@@ -105,13 +105,16 @@ export default function Landing() {
         if (!data.discord_user) return;
 
         const user = data.discord_user;
-        const activity = data.activities[0];
+        const activity = Array.isArray(data.activities)
+          ? data.activities[0]
+          : null;
 
         setDiscordUser(user.username);
-        setDiscordStatus(data.discord_status);
+        setDiscordStatus(data.discord_status ?? "offline");
+
         setDiscordActivity(activity?.name ?? "None");
         setDiscordActivityState(activity?.state ?? "None");
-        setDiscordActivityDetails(activity?.details ?? "None");
+        setDiscordActivityDetails(activity?.details ?? "");
         setDiscordActivityStart(
           activity?.timestamps?.start
             ? new Date(activity.timestamps.start)
@@ -123,8 +126,9 @@ export default function Landing() {
           setDiscordAvatar(
             `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}`
           );
-        } else
+        } else {
           setDiscordAvatar(`https://cdn.discordapp.com/embed/avatars/0.png`);
+        }
       }
     };
 
@@ -214,44 +218,68 @@ export default function Landing() {
   return (
     <div className="w-full h-fit flex flex-col p-4 text-white">
       {loading && <span>Loading...</span>}
-      {error && <span className="text-red-500">Error: {error}</span>}
+      {error && (
+        <span className="text-red-500">Something went wrong on my end</span>
+      )}
 
       {!loading && !error && (
         <div className="flex flex-row w-full h-full gap-6">
           <div className="flex flex-col">
             {/* Discord Container */}
             <div className="flex flex-col items-center bg-gray-800 px-4 py-6 rounded-xl shadow-lg gap-4 w-[300px] border-2 border-black">
+              <p
+                className={`font-bold text-2xl ${getStatusColor(
+                  discordStatus || "offline"
+                )}`}
+              >
+                {discordStatus || "offline"}
+              </p>
               <img
-                src={discordAvatar}
-                alt={`${discordUser} avatar`}
+                src={discordAvatar || "/default-avatar.png"}
+                alt={`${discordUser || "User"} avatar`}
                 className={`w-36 h-36 rounded-full border-4 ${getAvatarBorderColor(
-                  discordStatus
+                  discordStatus || "offline"
                 )}`}
               />
-              <p
-                className={`${getStatusColor(
-                  discordStatus
-                )} font-bold text-2xl`}
-              >
-                {discordStatus}
-              </p>
+
               <div className="flex flex-col items-center text-center text-gray-300 space-y-1">
                 <span className="font-semibold mb-1">
                   {discordActivity === "Custom Status" ||
                   discordActivity === "None"
-                    ? "💤 Not up to anything"
-                    : discordActivity == "Visual Studio Code" ? "In " + discordActivity: discordActivity}
+                    ? "💤 Not doing anything"
+                    : discordActivity == "Visual Studio Code"
+                    ? "In " + discordActivity
+                    : discordActivity}
                 </span>
                 {discordActivityState && (
                   <span className="text-sm italic text-gray-500">
-                    {discordActivityState == "None" ? "Messing with configs" : discordActivityState}
+                    {discordActivityState == "None" &&
+                    discordActivity == "Visual Studio Code"
+                      ? "Messing with configs"
+                      : discordActivityState == "None"
+                      ? ""
+                      : discordActivityState}
                   </span>
                 )}
-                {discordActivityDetails && (
-                  <span className={`text-sm ${discordActivityDetails.split(" - ")[1][0] == '0' ? 'text-green-700' : 'text-orange-400'}`}>
-                    {discordActivityDetails.split(" - ")[1][0] == "0" ? "Unproblematic Code" : discordActivityDetails.split(" - ")[1]}
-                  </span>
-                )}
+                {discordActivityDetails &&
+                  discordActivityDetails.includes(" - ") &&
+                  (() => {
+                    const parts = discordActivityDetails.split(" - ");
+                    const value = parts[1] ?? "";
+                    const firstChar = value[0] ?? "";
+
+                    const textColor =
+                      firstChar === "0" ? "text-green-700" : "text-orange-400";
+                    const displayText =
+                      firstChar === "0" ? "Unproblematic Code" : value;
+
+                    return (
+                      <span className={`text-sm ${textColor}`}>
+                        {displayText}
+                      </span>
+                    );
+                  })()}
+
                 {discordActivityStart && (
                   <span className="text-xs text-gray-400">
                     Elapsed: {activityElapsed}
