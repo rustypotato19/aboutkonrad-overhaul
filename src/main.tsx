@@ -7,17 +7,17 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import "./index.css";
 
 // === Component Imports === //
-import Landing from "./components/main/Landing.tsx";
-// import Header from "./components/header/header.tsx";
+import Home from "./components/main/Home.tsx";
+import Header from "./components/header/Header.tsx";
 
 // === Main Document Body === //
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <div className={``}>
       <StrictMode>
-        {/* <Header /> */}
+        <Header />
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Home />} />
         </Routes>
       </StrictMode>
     </div>

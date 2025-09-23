@@ -1,5 +1,98 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
 html {
-    background-color: rgb(44, 44, 44);
+  background-color: rgb(4, 0, 17);
+  overflow: hidden;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.rainbow {
+  text-align: center;
+  text-decoration: underline;
+}
+.rainbow_text_animated {
+  background: linear-gradient(
+    to right,
+    #6666ff,
+    #0099ff,
+    #00ff00,
+    #ff3399,
+    #6666ff
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow_animation 4s ease-in-out infinite;
+  background-size: 400% 100%;
+}
+
+@keyframes rainbow_animation {
+  0% {
+    background-position: 0 0;
+  }
+
+  50% {
+    background-position: 62.5% 0;
+  }
+
+  100% {
+    background-position: 125% 0;
+  }
+}
+
+.python_text {
+  background: linear-gradient(135deg, #306998, #306998, #ffd43b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.wave_animated {
+  display: inline-block;
+  animation: wave_animation 1.5s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
+@keyframes wave_animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  12% {
+    transform: rotate(10deg);
+  }
+  25% {
+    transform: rotate(20deg);
+  }
+  37% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  62% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(-20deg);
+  }
+  87% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
