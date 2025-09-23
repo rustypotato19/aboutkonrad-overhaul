@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function Home() {
   const userId = "959873990430720065"; // Discord user ID
@@ -22,6 +22,9 @@ export default function Home() {
 
   // === Misc ===
   const [underline, setUnderline] = useState<string>("");
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const marqueeRef = useRef<HTMLSpanElement>(null);
 
   // === Helpers ===
   const formatTime = (seconds: number) => {
@@ -163,6 +166,14 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [ytTrack]);
 
+  // === Detect overflow for marquee ===
+  useEffect(() => {
+    const el = marqueeRef.current;
+    if (el) {
+      setIsOverflowing(el.scrollWidth > el.clientWidth);
+    }
+  }, [ytTrack, ytArtist]);
+
   // === Render ===
   return (
     /* Page Container */
@@ -200,9 +211,16 @@ export default function Home() {
                     onMouseLeave={() => setUnderline("")}
                     className="flex flex-col gap-1 w-full"
                   >
-                    <div className="marquee-container w-[500px]">
-                      <span className={`marquee-text font-bold text-xl ${underline}`}>
-                        {ytTrack} <span className="font-normal text-neutral-400">by</span> {ytArtist?.split("•")[0] || "Unknown"}
+                    <div className="overflow-hidden w-[500px]">
+                      <span
+                        ref={marqueeRef}
+                        className={`font-bold text-xl whitespace-nowrap block ${underline} ${
+                          isOverflowing ? "animate-marquee" : ""
+                        }`}
+                      >
+                        {ytTrack}{" "}
+                        <span className="font-normal text-neutral-400">by</span>{" "}
+                        {ytArtist?.split("•")[0] || "Unknown"}
                       </span>
                     </div>
 
@@ -387,6 +405,18 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {/* Local marquee CSS */}
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+          display: inline-block;
+          padding-left: 100%;
+          animation: marquee 10s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
