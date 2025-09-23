@@ -182,12 +182,11 @@ export default function Landing() {
         setYtArtist(data.artist);
         setYtLink(data.link ?? null);
 
-        if (data.totalDuration) {
-          const [m, s] = data.totalDuration.split(":").map(Number);
-          setYtDuration(m * 60 + s);
+        if (typeof data.totalDuration === "number") {
+          setYtDuration(data.totalDuration);
         }
 
-        // Only reset ytStart if the track changed
+        // Only reset ytStart if the track changed or elapsed changed
         setYtStart((prevStart) => {
           if (data.track !== ytTrack || typeof data.elapsed === "number") {
             return Date.now() - (data.elapsed ?? 0) * 1000;
@@ -197,7 +196,7 @@ export default function Landing() {
       } catch (err) {
         console.error(err);
       }
-    }, 2000);
+    }, 950);
 
     return () => clearInterval(interval);
   }, [ytTrack]);
@@ -216,139 +215,146 @@ export default function Landing() {
 
   // === Render ===
   return (
-    <div className="w-full h-fit flex flex-col p-4 text-white">
-      {loading && <span>Loading...</span>}
-      {error && (
-        <span className="text-red-500">Something went wrong on my end</span>
-      )}
+    <div className="w-full h-fit flex items-center p-16 text-white">
+      <div className="ml-[50%] translate-x-[-50%] flex flex-col">
+        {loading && <span>Loading...</span>}
+        {error && (
+          <span className="text-red-500">Unexpected error occurred</span>
+        )}
 
-      {!loading && !error && (
-        <div className="flex flex-row w-full h-full gap-6">
-          <div className="flex flex-col">
-            {/* Discord Container */}
-            <div className="flex flex-col items-center bg-gray-800 px-4 py-6 rounded-xl shadow-lg gap-4 w-[300px] border-2 border-black">
-              <p
-                className={`font-bold text-2xl ${getStatusColor(
-                  discordStatus || "offline"
-                )}`}
-              >
-                {discordStatus || "offline"}
-              </p>
-              <img
-                src={discordAvatar || "/default-avatar.png"}
-                alt={`${discordUser || "User"} avatar`}
-                className={`w-36 h-36 rounded-full border-4 ${getAvatarBorderColor(
-                  discordStatus || "offline"
-                )}`}
-              />
+        {!loading && !error && (
+          <div className="flex flex-row w-full h-full gap-6">
+            <div className="flex flex-col">
+              {/* Discord Container */}
+              <div className="flex flex-col items-center bg-gray-800 px-4 py-6 rounded-xl shadow-lg gap-4 w-[300px] border-2 border-black">
+                <p
+                  className={`font-bold text-2xl ${getStatusColor(
+                    discordStatus || "offline"
+                  )}`}
+                >
+                  {discordStatus || "offline"}
+                </p>
+                <img
+                  src={discordAvatar || "/default-avatar.png"}
+                  alt={`${discordUser || "User"} avatar`}
+                  className={`w-36 h-36 rounded-full border-4 ${getAvatarBorderColor(
+                    discordStatus || "offline"
+                  )}`}
+                />
 
-              <div className="flex flex-col items-center text-center text-gray-300 space-y-1">
-                <span className="font-semibold mb-1">
-                  {discordActivity === "Custom Status" ||
-                  discordActivity === "None"
-                    ? "💤 Not doing anything"
-                    : discordActivity == "Visual Studio Code"
-                    ? "In " + discordActivity
-                    : discordActivity}
-                </span>
-                {discordActivityState && (
-                  <span className="text-sm italic text-gray-500">
-                    {discordActivityState == "None" &&
-                    discordActivity == "Visual Studio Code"
-                      ? "Messing with configs"
-                      : discordActivityState == "None"
-                      ? ""
-                      : discordActivityState}
+                <div className="flex flex-col items-center text-center text-gray-300 space-y-1">
+                  <span className={`font-semibold mb-1 ${discordActivity === "Custom Status" || discordActivity === "None" ? "text-3xl" : ""}`}>
+                    {discordActivity === "Custom Status" ||
+                    discordActivity === "None"
+                      ? "💤"
+                      : discordActivity == "Visual Studio Code"
+                      ? "In " + discordActivity
+                      : discordActivity}
                   </span>
-                )}
-                {discordActivityDetails &&
-                  discordActivityDetails.includes(" - ") &&
-                  (() => {
-                    const parts = discordActivityDetails.split(" - ");
-                    const value = parts[1] ?? "";
-                    const firstChar = value[0] ?? "";
+                  {discordActivityState && (
+                    <span className="text-sm italic text-gray-500">
+                      {discordActivityState == "None" &&
+                      discordActivity == "Visual Studio Code"
+                        ? "Messing with configs"
+                        : discordActivityState == "None"
+                        ? ""
+                        : discordActivityState}
+                    </span>
+                  )}
+                  {discordActivityDetails &&
+                    discordActivityDetails.includes(" - ") &&
+                    (() => {
+                      const parts = discordActivityDetails.split(" - ");
+                      const value = parts[1] ?? "";
+                      const firstChar = value[0] ?? "";
 
-                    const textColor =
-                      firstChar === "0" ? "text-green-700" : "text-orange-400";
-                    const displayText =
-                      firstChar === "0" ? "Unproblematic Code" : value;
+                      const textColor =
+                        firstChar === "0"
+                          ? "text-green-700"
+                          : "text-orange-400";
+                      const displayText =
+                        firstChar === "0" ? "Unproblematic Code" : value;
 
-                    return (
-                      <span className={`text-sm ${textColor}`}>
-                        {displayText}
-                      </span>
-                    );
-                  })()}
+                      return (
+                        <span className={`text-sm ${textColor}`}>
+                          {displayText}
+                        </span>
+                      );
+                    })()}
 
-                {discordActivityStart && (
-                  <span className="text-xs text-gray-400">
-                    Elapsed: {activityElapsed}
+                  {discordActivityStart && (
+                    <span className="text-xs text-gray-400">
+                      Elapsed: {activityElapsed}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* YouTube Music Container */}
+              <div className="mt-6 w-[300px] px-3 pb-5 pt-5 bg-red-800 rounded-xl shadow-lg border-2 border-black flex flex-col items-center text-center text-sm">
+                {/* Logo always visible */}
+                <img
+                  src="/YT-Music-Logo.png"
+                  alt="YouTube Music Logo"
+                  className="w-[200px] mb-2"
+                />
+
+                {ytTrack ? (
+                  <a
+                    href={
+                      ytLink ??
+                      `https://music.youtube.com/search?q=${encodeURIComponent(
+                        `${ytTrack} ${ytArtist ?? ""}`
+                      )}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center text-center text-sm no-underline hover:underline"
+                  >
+                    <h1 className="text-2xl font-bold mb-[2px] text-white">
+                      {ytTrack}
+                    </h1>
+                    {ytArtist && (
+                      <span className="text-neutral-400">{ytArtist}</span>
+                    )}
+
+                    {ytDuration && ytStart && (
+                      <div className="w-full mt-2">
+                        <div className="flex justify-between text-xs text-gray-300 mb-1">
+                          <span>
+                            {formatTime(
+                              Math.min(
+                                (Date.now() - ytStart) / 1000,
+                                ytDuration
+                              )
+                            )}
+                          </span>
+                          <span>{formatTime(ytDuration)}</span>
+                        </div>
+                        <div className="w-full bg-gray-600 h-2 rounded">
+                          <div
+                            className="bg-red-500 h-2 rounded"
+                            style={{ width: `${ytCompletion}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </a>
+                ) : (
+                  <span className="text-gray-300 italic mt-2">
+                    Currently not listening to music
                   </span>
                 )}
               </div>
             </div>
 
-            {/* YouTube Music Container */}
-            <div className="mt-6 w-[300px] px-3 pb-5 pt-5 bg-red-800 rounded-xl shadow-lg border-2 border-black flex flex-col items-center text-center text-sm">
-              {/* Logo always visible */}
-              <img
-                src="/YT-Music-Logo.png"
-                alt="YouTube Music Logo"
-                className="w-[200px] mb-2"
-              />
-
-              {ytTrack ? (
-                <a
-                  href={
-                    ytLink ??
-                    `https://music.youtube.com/search?q=${encodeURIComponent(
-                      `${ytTrack} ${ytArtist ?? ""}`
-                    )}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-col items-center text-center text-sm no-underline hover:underline"
-                >
-                  <h1 className="text-2xl font-bold mb-[2px] text-white">
-                    {ytTrack}
-                  </h1>
-                  {ytArtist && (
-                    <span className="text-neutral-400">{ytArtist}</span>
-                  )}
-
-                  {ytDuration && ytStart && (
-                    <div className="w-full mt-2">
-                      <div className="flex justify-between text-xs text-gray-300 mb-1">
-                        <span>
-                          {formatTime(
-                            Math.min((Date.now() - ytStart) / 1000, ytDuration)
-                          )}
-                        </span>
-                        <span>{formatTime(ytDuration)}</span>
-                      </div>
-                      <div className="w-full bg-gray-600 h-2 rounded">
-                        <div
-                          className="bg-red-500 h-2 rounded"
-                          style={{ width: `${ytCompletion}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </a>
-              ) : (
-                <span className="text-gray-300 italic mt-2">
-                  Currently not listening to music
-                </span>
-              )}
+            {/* Main Block */}
+            <div className="ml-6">
+              <h1 className="font-bold text-4xl">{title}</h1>
             </div>
           </div>
-
-          {/* Main Block */}
-          <div className="ml-6">
-            <h1 className="font-bold text-4xl">{title}</h1>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

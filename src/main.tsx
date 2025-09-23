@@ -8,14 +8,14 @@ import "./index.css";
 
 // === Component Imports === //
 import Landing from "./components/main/Landing.tsx";
-import Header from "./components/header/header.tsx";
+// import Header from "./components/header/header.tsx";
 
 // === Main Document Body === //
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <div className={``}>
       <StrictMode>
-        <Header />
+        {/* <Header /> */}
         <Routes>
           <Route path="/" element={<Landing />} />
         </Routes>
