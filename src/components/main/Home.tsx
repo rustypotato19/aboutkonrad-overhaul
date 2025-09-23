@@ -312,7 +312,7 @@ export default function Home() {
               </span>
             </p>
           </div>
-          <hr className="w-[134%] border-2" />
+          <hr className="w-[115%] border-2" />
           <div className="my-4">
             <h1 className="font-bold text-[1.6rem]">strengths</h1>
             <p>
@@ -333,7 +333,7 @@ export default function Home() {
               </span>
             </p>
           </div>
-          <hr className="w-[134%] border-2" />
+          <hr className="w-[115%] border-2" />
           <div className="my-4">
             <h1 className="font-bold text-[1.6rem]">weaknesses</h1>
             <p>
@@ -343,7 +343,7 @@ export default function Home() {
               </span>
             </p>
           </div>
-          <hr className="w-[134%] border-2" />
+          <hr className="w-[115%] border-2" />
           <div className="my-4">
             <h1 className="font-bold text-[1.6rem]">web development</h1>
             <div className="flex flex-col w-full">
