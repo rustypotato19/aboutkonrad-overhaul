@@ -30,6 +30,7 @@ export default function Landing() {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [underline, setUnderline] = useState<boolean>(false)
 
   // === Helpers ===
   const formatTime = (seconds: number) => {
@@ -309,13 +310,15 @@ export default function Landing() {
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center text-sm no-underline hover:underline"
+                    onMouseEnter={() => {setUnderline(true)}}
+                    onMouseLeave={() => {setUnderline(false)}}
+                    className="flex flex-col items-center text-center text-sm no-underline"
                   >
-                    <h1 className="text-2xl font-bold mb-[2px] text-white">
+                    <h1 className={`text-2xl font-bold mb-[2px] text-white ${underline ? "underline" : ""}`}>
                       {ytTrack}
                     </h1>
                     {ytArtist && (
-                      <span className="text-neutral-400">{ytArtist}</span>
+                      <span className={`text-neutral-400 ${underline ? "underline" : ""}`}>{ytArtist}</span>
                     )}
 
                     {ytDuration && ytStart && (
