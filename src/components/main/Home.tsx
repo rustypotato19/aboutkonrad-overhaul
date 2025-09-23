@@ -18,6 +18,7 @@ export default function Home() {
   const [ytStart, setYtStart] = useState<number | null>(null);
   const [ytDuration, setYtDuration] = useState<number | null>(null);
   const [ytLink, setYtLink] = useState<string | null>(null);
+  const [ytStatus, setYtStatus] = useState<string | null>(null);
 
   // === Misc ===
   const [underline, setUnderline] = useState<string>("");
@@ -134,12 +135,14 @@ export default function Home() {
           setYtLink(null);
           setYtDuration(null);
           setYtStart(null);
+          setYtStatus(null);
           return;
         }
 
         setYtTrack(data.track);
         setYtArtist(data.artist);
         setYtLink(data.link ?? null);
+        setYtStatus(data.status);
 
         if (typeof data.totalDuration === "number") {
           setYtDuration(data.totalDuration);
@@ -163,9 +166,9 @@ export default function Home() {
   // === Render ===
   return (
     /* Page Container */
-    <div className="w-full h-full flex flex-col items-center text-white pb-16 gap-12">
+    <div className="w-full h-full flex flex-col items-center text-white pb-16 gap-10">
       {/* Status Container */}
-      <div className="flex flex-row w-1/2 h-fit min-h-[150px] items-start justify-between gap-2 text-4xl">
+      <div className="flex flex-row w-1/2 h-fit min-h-[150px] items-start justify-between gap-12 text-4xl">
         <div className="flex flex-col h-full justify-between gap-8">
           <h1 className="flex items-center gap-2 translate-x-[-1rem] min-w-fit text-3xl sm:text-4xl font-semibold">
             <span className="wave_animated inline-block">👋</span>
@@ -174,43 +177,64 @@ export default function Home() {
           </h1>
 
           {/* YouTube Music Status */}
-          {ytTrack && (
-            <a
-              href={
-                ytLink ??
-                `https://music.youtube.com/search?q=${encodeURIComponent(
-                  `${ytTrack} ${ytArtist ?? ""}`
-                )}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              onMouseEnter={() => setUnderline("underline")}
-              onMouseLeave={() => setUnderline("")}
-              className="h-fit flex flex-col text-2xl w-full"
+          <div className="relative w-full h-28">
+            {" "}
+            {/* Fixed height reserves space */}
+            <div
+              className={`transition-all duration-500 ease-in-out transform h-full flex flex-col justify-center items-start ${
+                ytTrack ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              }`}
             >
-              <div className="flex flex-col text-xl w-full">
-                <h1>
-                  <span className="text-red-600 font-bold">YouTube Music</span>
-                  <br />
-                  <span className={`font-bold ${underline}`}>
-                    {ytTrack} <span className="font-normal">by</span>{" "}
-                  </span>
-                  <span className={`font-bold ${underline}`}>
-                    {ytArtist?.split("•")[0] || "Unknown"}
-                  </span>
-                  {ytDuration && ytStart && (
-                    <span>
-                      <br />
-                      {formatTime(
-                        Math.min((Date.now() - ytStart) / 1000, ytDuration)
-                      )}{" "}
-                      {" / " + formatTime(ytDuration)}
-                    </span>
-                  )}
-                </h1>
+              <div className="w-full bg-red-800 bg-opacity-50 rounded-xl p-4 flex flex-col gap-2 shadow-lg h-full border-2">
+                {ytTrack && (
+                  <a
+                    href={
+                      ytLink ??
+                      `https://music.youtube.com/search?q=${encodeURIComponent(
+                        `${ytTrack} ${ytArtist ?? ""}`
+                      )}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onMouseEnter={() => setUnderline("underline")}
+                    onMouseLeave={() => setUnderline("")}
+                    className="flex flex-col gap-1 w-full"
+                  >
+                    <div className="marquee-container w-[500px]">
+                      <span className={`marquee-text font-bold text-xl ${underline}`}>
+                        {ytTrack} <span className="font-normal text-neutral-400">by</span> {ytArtist?.split("•")[0] || "Unknown"}
+                      </span>
+                    </div>
+
+                    {ytDuration && ytStart && (
+                      <div className="text-sm text-gray-100">
+                        {formatTime(
+                          Math.min((Date.now() - ytStart) / 1000, ytDuration)
+                        )}{" "}
+                        / {formatTime(ytDuration)}{" "}
+                        {ytStatus === "paused" && "⏸ Paused"}
+                      </div>
+                    )}
+                    <div className="h-1 w-full bg-neutral-100 rounded-full mt-1">
+                      <div
+                        className="h-1 bg-neutral-800 rounded-full transition-all duration-300"
+                        style={{
+                          width:
+                            ytDuration && ytStart
+                              ? `${Math.min(
+                                  ((Date.now() - ytStart) / 1000 / ytDuration) *
+                                    100,
+                                  100
+                                )}%`
+                              : "0%",
+                        }}
+                      />
+                    </div>
+                  </a>
+                )}
               </div>
-            </a>
-          )}
+            </div>
+          </div>
         </div>
 
         {/* Discord Status */}
